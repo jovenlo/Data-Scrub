@@ -1,0 +1,172 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* White */
+    --foreground: 0 0% 3.9%; /* Near Black */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 174 100% 29%; /* Teal #009688 */
+    --primary-foreground: 0 0% 100%; /* White */
+    --secondary: 190 67% 93%; /* Light Blue #E0F7FA */
+    --secondary-foreground: 174 100% 20%; /* Darker Teal for contrast */
+    --muted: 0 0% 94%; /* Neutral Gray #F0F0F0 */
+    --muted-foreground: 0 0% 45.1%; /* Mid Gray */
+    --accent: 190 67% 93%; /* Light Blue #E0F7FA */
+    --accent-foreground: 174 100% 20%; /* Darker Teal for contrast */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 88%; /* Lighter Neutral Gray */
+    --input: 0 0% 88%; /* Lighter Neutral Gray */
+    --ring: 174 100% 29%; /* Teal #009688 */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Light mode prose styles */
+    --prose-body: hsl(var(--foreground));
+    --prose-headings: hsl(var(--foreground));
+    --prose-lead: hsl(var(--muted-foreground));
+    --prose-links: hsl(var(--primary));
+    --prose-bold: hsl(var(--foreground));
+    --prose-counters: hsl(var(--muted-foreground));
+    --prose-bullets: hsl(var(--muted-foreground));
+    --prose-hr: hsl(var(--border));
+    --prose-quotes: hsl(var(--foreground));
+    --prose-quote-borders: hsl(var(--primary));
+    --prose-captions: hsl(var(--muted-foreground));
+    --prose-code: hsl(var(--foreground)); /* Inline code */
+    --prose-pre-code: hsl(var(--foreground)); /* Code block text */
+    --prose-pre-bg: hsl(var(--muted)); /* Code block background */
+    --prose-th-borders: hsl(var(--border));
+    --prose-td-borders: hsl(var(--border));
+  }
+  .dark {
+    /* Define dark mode colors if needed, using the same logic but darker base */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 174 100% 39%; /* Lighter Teal for dark mode */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 190 20% 20%; /* Darker Blue */
+    --secondary-foreground: 190 67% 93%; /* Light Blue text */
+    --muted: 0 0% 15%; /* Dark Gray */
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 190 20% 20%; /* Darker Blue */
+    --accent-foreground: 190 67% 93%; /* Light Blue text */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%; /* Darker Border */
+    --input: 0 0% 20%; /* Darker Input */
+    --ring: 174 100% 39%; /* Lighter Teal ring */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+     /* Dark mode sidebar vars if needed, mirroring light mode adjustments */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 174 100% 39%; /* Lighter Teal */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 190 20% 15%; /* Darker Blue Accent */
+    --sidebar-accent-foreground: 190 67% 93%; /* Light Blue text */
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 174 100% 39%;
+
+     /* Dark mode prose styles */
+    --prose-body: hsl(var(--foreground));
+    --prose-headings: hsl(var(--foreground));
+    --prose-lead: hsl(var(--muted-foreground));
+    --prose-links: hsl(var(--primary));
+    --prose-bold: hsl(var(--foreground));
+    --prose-counters: hsl(var(--muted-foreground));
+    --prose-bullets: hsl(var(--muted-foreground));
+    --prose-hr: hsl(var(--border));
+    --prose-quotes: hsl(var(--foreground));
+    --prose-quote-borders: hsl(var(--primary));
+    --prose-captions: hsl(var(--muted-foreground));
+    --prose-code: hsl(var(--foreground)); /* Inline code */
+    --prose-pre-code: hsl(var(--foreground)); /* Code block text */
+    --prose-pre-bg: hsl(var(--muted)); /* Code block background */
+    --prose-th-borders: hsl(var(--border));
+    --prose-td-borders: hsl(var(--border));
+    --prose-invert-body: hsl(var(--foreground));
+    --prose-invert-headings: hsl(var(--foreground));
+    --prose-invert-lead: hsl(var(--muted-foreground));
+    --prose-invert-links: hsl(var(--primary));
+    --prose-invert-bold: hsl(var(--foreground));
+    --prose-invert-counters: hsl(var(--muted-foreground));
+    --prose-invert-bullets: hsl(var(--muted-foreground));
+    --prose-invert-hr: hsl(var(--border));
+    --prose-invert-quotes: hsl(var(--foreground));
+    --prose-invert-quote-borders: hsl(var(--primary));
+    --prose-invert-captions: hsl(var(--muted-foreground));
+    --prose-invert-code: hsl(var(--foreground));
+    --prose-invert-pre-code: hsl(var(--foreground));
+    --prose-invert-pre-bg: hsl(var(--muted));
+    --prose-invert-th-borders: hsl(var(--border));
+    --prose-invert-td-borders: hsl(var(--border));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+   /* Apply prose styles globally or scope as needed */
+   .prose {
+      @apply text-[var(--prose-body)];
+      /* Add other prose styles here */
+    }
+
+    .prose :where(code):not(:where([class~="not-prose"] *)) {
+       @apply text-[var(--prose-code)]; /* Style inline code */
+    }
+    .prose :where(pre):not(:where([class~="not-prose"] *)) {
+        @apply bg-[var(--prose-pre-bg)] text-[var(--prose-pre-code)]; /* Style code blocks */
+    }
+    /* ... Add other prose element styles ... */
+
+
+    .dark .prose {
+       /* Define prose styles specific to dark mode */
+       @apply text-[var(--prose-invert-body)];
+    }
+    .dark .prose :where(code):not(:where([class~="not-prose"] *)) {
+       @apply text-[var(--prose-invert-code)];
+    }
+    .dark .prose :where(pre):not(:where([class~="not-prose"] *)) {
+        @apply bg-[var(--prose-invert-pre-bg)] text-[var(--prose-invert-pre-code)];
+    }
+     /* ... Add other dark mode prose element styles ... */
+
+
+}
