@@ -463,14 +463,13 @@ export default function VisualizationPage() {
                         ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-3 space-y-1" {...props} />,
                         ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-3 space-y-1" {...props} />,
                         li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                        code: ({node, inline, className, children, ...props}) => {
+                        code: ({node, className, children, ...props}) => {
                            const match = /language-(\w+)/.exec(className || '')
-                           // Ensure code blocks have background for capture
-                           return !inline ? (
-                             <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm my-3 text-foreground"><code className={className} {...props}>{children}</code></pre>
-                           ) : (
-                             <code className="bg-muted/80 px-1 py-0.5 rounded text-sm font-mono text-foreground" {...props}>{children}</code>
-                           )
+                           return (
+                             <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm my-3 text-foreground">
+                               <code className={className} {...props}>{children}</code>
+                             </pre>
+                           );
                          },
                         blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground" {...props} />,
                     }}
