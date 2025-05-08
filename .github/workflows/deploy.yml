@@ -30,29 +30,34 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '18'
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install sharp
 
       - name: Build
         env:
           NEXT_PUBLIC_BASE_PATH: /Data-Scrub
-        run: npm run build
-
-      - name: Fix permissions
+          NODE_ENV: production
         run: |
-          chmod -R a+rx ./out
+          npm run build
+          touch out/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
+        with:
+          enablement: true
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./out
+          path: out
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
