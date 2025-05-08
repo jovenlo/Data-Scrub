@@ -1,21 +1,12 @@
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: 'export',
-  basePath: '/Data-Scrub',
   images: {
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
-    ],
   },
-  // Ensure trailing slashes for consistent routing
+  basePath: '/Data-Scrub',
+  assetPrefix: '/Data-Scrub/',
   trailingSlash: true,
-};
+}
 
 export default nextConfig;
