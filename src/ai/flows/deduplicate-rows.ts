@@ -1,70 +1,32 @@
 // src/ai/flows/deduplicate-rows.ts
-'use server';
+import Papa from 'papaparse';
 
-/**
- * @fileOverview Deduplicates rows in a CSV dataset using GenAI to identify and remove likely duplicates.
- *
- * - deduplicateRows - A function that takes a CSV dataset as input and returns a cleaned CSV dataset with duplicates removed.
- * - DeduplicateRowsInput - The input type for the deduplicateRows function.
- * - DeduplicateRowsOutput - The return type for the deduplicateRows function.
- */
-
-import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
-
-const DeduplicateRowsInputSchema = z.object({
-  csvData: z
-    .string()
-    .describe('The CSV data to deduplicate, including headers.'),
-});
-export type DeduplicateRowsInput = z.infer<typeof DeduplicateRowsInputSchema>;
-
-const DeduplicateRowsOutputSchema = z.object({
-  cleanedCsvData: z
-    .string()
-    .describe('The cleaned CSV data with duplicate rows removed.'),
-});
-export type DeduplicateRowsOutput = z.infer<typeof DeduplicateRowsOutputSchema>;
-
-export async function deduplicateRows(input: DeduplicateRowsInput): Promise<DeduplicateRowsOutput> {
-  return deduplicateRowsFlow(input);
+export interface DeduplicateRowsInput {
+  csvData: string;
 }
 
-const deduplicateRowsPrompt = ai.definePrompt({
-  name: 'deduplicateRowsPrompt',
-  input: {
-    schema: z.object({
-      csvData: z
-        .string()
-        .describe('The CSV data to deduplicate, including headers.'),
-    }),
-  },
-  output: {
-    schema: z.object({
-      cleanedCsvData: z
-        .string()
-        .describe('The cleaned CSV data with duplicate rows removed.'),
-    }),
-  },
-  prompt: `You are an expert data cleaner. Your task is to remove duplicate rows from a given CSV dataset.
+export interface DeduplicateRowsOutput {
+  cleanedCsvData: string;
+}
 
-  Here is the CSV data:
-  {{csvData}}
+export async function deduplicateRows(input: DeduplicateRowsInput): Promise<DeduplicateRowsOutput> {
+  // Parse CSV data
+  const results = Papa.parse(input.csvData, { header: true });
+  
+  // Create a Set to track unique rows
+  const seen = new Set();
+  const uniqueRows = results.data.filter((row: any) => {
+    // Convert row to string for comparison
+    const rowStr = JSON.stringify(row);
+    if (seen.has(rowStr)) {
+      return false;
+    }
+    seen.add(rowStr);
+    return true;
+  });
 
-  Identify and remove rows that are likely to be duplicates based on data similarity. Return the cleaned CSV data, including the header row.
-  Ensure that the output is valid CSV. Do not include any explanation or other text besides the cleaned CSV data.
-  `,
-});
-
-const deduplicateRowsFlow = ai.defineFlow<
-  typeof DeduplicateRowsInputSchema,
-  typeof DeduplicateRowsOutputSchema
->({
-  name: 'deduplicateRowsFlow',
-  inputSchema: DeduplicateRowsInputSchema,
-  outputSchema: DeduplicateRowsOutputSchema,
-},
-async input => {
-  const {output} = await deduplicateRowsPrompt(input);
-  return output!;
-});
+  // Convert back to CSV
+  const cleanedCsvData = Papa.unparse(uniqueRows);
+  
+  return { cleanedCsvData };
+}

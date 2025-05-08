@@ -1,8 +1,6 @@
-
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -10,6 +8,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -19,12 +18,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-   experimental: {
-    serverActions: {
-        allowedOrigins: ['localhost:9002'], // Adjust origin if needed for deployment
-        bodySizeLimit: '2mb', // Increase if handling large uploads via actions
-    },
-  },
+  output: 'export',
+  basePath: '/Data-Scrub',
+  trailingSlash: true,
+  // Remove experimental and server-side features
 };
 
 export default nextConfig;

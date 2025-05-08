@@ -1,109 +1,111 @@
-
 // src/ai/flows/generate-data-report.ts
-'use server';
+'use client';
 
 /**
- * @fileOverview Generates a data report summarizing a CSV dataset using GenAI.
+ * @fileOverview Generates a data report summarizing a CSV dataset using basic statistics.
  *
  * - generateDataReport - A function that takes CSV data and returns a textual report.
  * - GenerateDataReportInput - The input type for the generateDataReport function.
  * - GenerateDataReportOutput - The return type for the generateDataReport function.
  */
 
-import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
+import Papa from 'papaparse';
 
-const GenerateDataReportInputSchema = z.object({
-  csvData: z
-    .string()
-    .describe('The CSV data to analyze, including headers.'),
-});
-export type GenerateDataReportInput = z.infer<typeof GenerateDataReportInputSchema>;
-
-const GenerateDataReportOutputSchema = z.object({
-  report: z
-    .string()
-    .describe('A comprehensive textual report summarizing the provided CSV data.'),
-});
-export type GenerateDataReportOutput = z.infer<typeof GenerateDataReportOutputSchema>;
-
-export async function generateDataReport(input: GenerateDataReportInput): Promise<GenerateDataReportOutput> {
-  return generateDataReportFlow(input);
+export interface GenerateDataReportInput {
+  csvData: string;
 }
 
-const generateDataReportPrompt = ai.definePrompt({
-  name: 'generateDataReportPrompt',
-  input: {
-    schema: z.object({
-      csvData: z
-        .string()
-        .describe('The CSV data to analyze, including headers.'),
-    }),
-  },
-  output: {
-    schema: z.object({
-      report: z
-        .string()
-        .describe('A comprehensive textual report summarizing the provided CSV data.'),
-    }),
-  },
-  // Updated prompt for clarity and robustness
-  prompt: `You are an expert data analyst. Your task is to analyze the provided CSV data and generate a comprehensive textual report.
+export interface GenerateDataReportOutput {
+  report: string;
+}
 
-Here is the CSV data:
-\`\`\`csv
-{{csvData}}
-\`\`\`
+function calculateStats(data: any[], column: string) {
+  const values = data
+    .map(row => parseFloat(row[column]))
+    .filter(val => !isNaN(val));
 
-Your report should include the following sections, formatted clearly using Markdown:
+  if (values.length === 0) return null;
 
-1.  **Data Overview:**
-    *   Number of rows (excluding the header).
-    *   Number of columns.
+  const sum = values.reduce((a, b) => a + b, 0);
+  const mean = sum / values.length;
+  const sorted = [...values].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  
+  // Calculate standard deviation
+  const squareDiffs = values.map(value => Math.pow(value - mean, 2));
+  const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / values.length;
+  const stdDev = Math.sqrt(avgSquareDiff);
 
-2.  **Column Analysis:**
-    *   For each column, list its name.
-    *   Infer its data type (e.g., Numerical, Categorical, Text, Date, Boolean).
-    *   Calculate and state the percentage of missing/empty values (formatted to one decimal place, e.g., 15.2%).
+  return {
+    mean: mean.toFixed(2),
+    median: median.toFixed(2),
+    min: min.toFixed(2),
+    max: max.toFixed(2),
+    stdDev: stdDev.toFixed(2)
+  };
+}
 
-3.  **Basic Statistics (for Numerical columns):**
-    *   For columns identified as Numerical:
-        *   Provide Mean, Median, Minimum (Min), Maximum (Max), and Standard Deviation (Std Dev).
-        *   Format numerical statistics to two decimal places (e.g., 123.45).
-    *   If a statistic cannot be calculated for a numerical column (e.g., due to non-numeric entries mixed in, or only one data point for Std Dev), clearly state "N/A" or "Cannot calculate" for that specific statistic and briefly mention the reason if obvious (e.g., "contains non-numeric values"). Do not halt the entire analysis.
+function inferColumnType(data: any[], column: string) {
+  const sampleSize = Math.min(100, data.length);
+  const samples = data.slice(0, sampleSize).map(row => row[column]);
+  
+  // Count numeric values
+  const numericCount = samples.filter(val => !isNaN(parseFloat(val)) && val !== '').length;
+  const numericRatio = numericCount / samples.filter(val => val !== '').length;
 
-4.  **Key Insights & Observations:**
-    *   Identify any potential patterns, trends, or relationships between columns you observe.
-    *   Point out any significant outliers or unusual distributions in numerical columns.
-    *   Mention potential data quality issues you notice (e.g., inconsistent formatting, high percentage of missing values in an important column, seemingly incorrect values).
-    *   Suggest potential next steps for analysis or cleaning based on the findings.
+  if (numericRatio > 0.8) return 'Numerical';
+  return 'Categorical';
+}
 
-5.  **Summary:**
-    *   Provide a brief overall summary paragraph describing the dataset's main characteristics and potential usefulness based on your analysis.
+function calculateMissingPercentage(data: any[], column: string) {
+  const totalRows = data.length;
+  const missingCount = data.filter(row => !row[column] || row[column].trim() === '').length;
+  return ((missingCount / totalRows) * 100).toFixed(1);
+}
 
-**Important Considerations:**
-*   Ensure the entire output is valid Markdown.
-*   If the provided dataset is extremely large, state that the analysis might be based on a representative sample of the data to ensure timely processing.
-*   Handle potential errors in parsing or calculations gracefully within the report where possible (as described for statistics).
-`,
-});
+export async function generateDataReport(input: GenerateDataReportInput): Promise<GenerateDataReportOutput> {
+  const results = Papa.parse(input.csvData, { header: true });
+  const data = results.data;
+  const columns = results.meta.fields || [];
 
-const generateDataReportFlow = ai.defineFlow<
-  typeof GenerateDataReportInputSchema,
-  typeof GenerateDataReportOutputSchema
->({
-  name: 'generateDataReportFlow',
-  inputSchema: GenerateDataReportInputSchema,
-  outputSchema: GenerateDataReportOutputSchema,
-},
-async input => {
-  // Add basic input validation if needed (e.g., check if csvData is empty)
-   if (!input.csvData || input.csvData.trim().split('\n').length < 2) {
-     // Handle case with no data or only headers
-     return { report: "Input CSV data is missing, empty, or contains only a header row. Cannot generate report." };
-   }
+  let report = '# Data Analysis Report\n\n';
 
-  const {output} = await generateDataReportPrompt(input);
-  // Add basic output validation/sanitization if needed
-  return output!;
-});
+  // Data Overview
+  report += '## Data Overview\n\n';
+  report += `* Number of rows: ${data.length}\n`;
+  report += `* Number of columns: ${columns.length}\n\n`;
+
+  // Column Analysis
+  report += '## Column Analysis\n\n';
+  for (const column of columns) {
+    report += `### ${column}\n\n`;
+    const type = inferColumnType(data, column);
+    const missingPercentage = calculateMissingPercentage(data, column);
+    
+    report += `* Type: ${type}\n`;
+    report += `* Missing values: ${missingPercentage}%\n`;
+
+    if (type === 'Numerical') {
+      const stats = calculateStats(data, column);
+      if (stats) {
+        report += `* Statistics:\n`;
+        report += `  * Mean: ${stats.mean}\n`;
+        report += `  * Median: ${stats.median}\n`;
+        report += `  * Min: ${stats.min}\n`;
+        report += `  * Max: ${stats.max}\n`;
+        report += `  * Standard Deviation: ${stats.stdDev}\n`;
+      }
+    }
+    report += '\n';
+  }
+
+  // Summary
+  report += '## Summary\n\n';
+  report += `This dataset contains ${data.length} records across ${columns.length} columns. `;
+  report += `The data includes both numerical and categorical variables, with varying degrees of completeness. `;
+  report += `Consider reviewing columns with high percentages of missing values for data quality improvement.\n`;
+
+  return { report };
+}
