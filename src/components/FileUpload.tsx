@@ -1,4 +1,3 @@
-
 "use client";
 
 import type React from 'react';
@@ -55,7 +54,7 @@ export function FileUpload({ onFileUpload, disabled = false }: FileUploadProps) 
         console.error("FileReader error:", error); // Log the actual error
         toast({
             title: "Error Reading File",
-            description: `An error occurred while reading the file: ${error.message || 'Unknown error'}.`,
+            description: `An error occurred while reading the file. Please try again.`,
             variant: "destructive",
         });
         setFileName(null);
