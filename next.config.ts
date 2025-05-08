@@ -1,12 +1,8 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  output: 'export',
+  basePath: '/Data-Scrub',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -18,10 +14,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'export',
-  basePath: '/Data-Scrub',
+  // Ensure trailing slashes for consistent routing
   trailingSlash: true,
-  // Remove experimental and server-side features
 };
 
 export default nextConfig;
